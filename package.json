@@ -1,0 +1,17 @@
+{
+  "name": "interstellar-relay-bgp-drill",
+  "version": "1.0.0",
+  "description": "星间中继网络路由演练：乱序通告/撤销、链路纪元、环路拒绝与检查点恢复",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "test": "node --test test/",
+    "build": "node scripts/build.js",
+    "verify": "node scripts/verify.js"
+  },
+  "license": "MIT"
+}

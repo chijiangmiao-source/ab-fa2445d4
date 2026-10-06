@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>星间中继路由演练 · BGP 路径复核台</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>🛰️ 星间中继网络 · 路由演练台</h1>
+    <div class="status" id="statusBar">
+      <span class="badge" id="runBadge">run —</span>
+      <span class="badge" id="stepBadge">步骤 0/0</span>
+      <span class="badge ok" id="replayBadge">回放一致性 —</span>
+      <span class="badge" id="convergeBadge">收敛 —</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel config-panel">
+      <h2>① 演练配置</h2>
+      <p class="hint">至多 8 台路由器（标识 0–7）、64 项事件。邻接含<em>本地偏好</em>，链路断开/重连推进<em>纪元</em>。修改后点“加载配置”。</p>
+      <div class="config-actions">
+        <button id="btnLoadConfig" class="primary">加载配置</button>
+        <button id="btnDefault">填入示例</button>
+        <button id="btnValidate">仅校验</button>
+        <span id="configMsg" class="config-msg"></span>
+      </div>
+      <textarea id="configInput" spellcheck="false" aria-label="演练配置 JSON"></textarea>
+
+      <h2>② 逐步执行</h2>
+      <div class="controls">
+        <button id="btnStep" class="primary">下一步 ▶</button>
+        <button id="btnRun">⏩ 一次跑完</button>
+        <button id="btnResetDefault">恢复示例演练</button>
+      </div>
+      <div class="seek">
+        <label for="seekRange">回放定位：</label>
+        <input type="range" id="seekRange" min="0" max="0" value="0" />
+        <span id="seekLabel">0</span>
+        <button id="btnSeek">跳转</button>
+      </div>
+      <div id="restoreNote" class="restore-note hidden"></div>
+    </section>
+
+    <section class="panel data-panel">
+      <h2>③ 当前裁决</h2>
+      <div class="subgrid">
+        <div>
+          <h3>邻接与链路纪元</h3>
+          <div class="table-wrap"><table id="adjTable"></table></div>
+        </div>
+        <div>
+          <h3>待投递消息 <small>（灰色=按当前纪元已过期，投递将被忽略）</small></h3>
+          <div class="table-wrap"><table id="pendingTable"></table></div>
+        </div>
+      </div>
+
+      <h3>各路由器最优路径（本地偏好 → 路径长度 → 下一跳标识）</h3>
+      <div id="bestTables" class="best-grid"></div>
+
+      <h3>邻居入站路由（RIB-In）</h3>
+      <div id="inboundTables" class="best-grid"></div>
+
+      <h2>④ 事件复核日志</h2>
+      <p class="hint">重点核对：<span class="tag stale">过期消息忽略</span> <span class="tag loop">环路拒绝</span> <span class="tag withdrawn">撤销生效</span> <span class="tag accepted">通告接受</span>，以及重开页面后的回放是否与不中断演练收敛一致。</p>
+      <div id="eventLog" class="event-log"></div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -13,3 +13,6 @@ __pycache__/
 .yarn-cache/
 *.pyc
 *.pyo
+
+# 运行时检查点
+data/

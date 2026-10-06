@@ -1,0 +1,43 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: interstellar-relay-drill:latest
+    environment:
+      # 宿主访问端口可通过环境变量配置：HOST_PORT=9090 docker compose up -d
+      PORT: 8080
+      HOST: 0.0.0.0
+      DATA_DIR: /app/data
+    ports:
+      # 宿主机端口可配置（默认 8080），容器内恒为 8080
+      - "${HOST_PORT:-8080}:8080"
+    volumes:
+      # 检查点持久化：页面重开 / 容器重建后恢复最后完整步骤
+      - checkpoint-data:/app/data
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+    restart: unless-stopped
+
+  # 验收服务：docker compose run --rm verify
+  # 围绕旧纪元撤销、环路拒绝和恢复收敛运行代码测试，
+  # 检查页面构建并对站点及 /healthz 进行 HTTP 冒烟；
+  # 执行完成后退出，并以退出码报告验收结果。
+  verify:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: interstellar-relay-drill:latest
+    environment:
+      SMOKE_PORT: "18080"
+    # 验证镜像内自带的服务器与静态站点（volume 覆盖仅为可选）
+    command: ["node", "scripts/verify.js"]
+    # 一次性验收任务：正常退出 0 / 失败 1
+    restart: "no"
+
+volumes:
+  checkpoint-data:
